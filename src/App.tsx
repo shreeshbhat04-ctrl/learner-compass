@@ -5,30 +5,41 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Index from "./pages/Index";
+import LoginPage from "./pages/Login";
+import SignupPage from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
 import TracksPage from "./pages/Tracks";
 import TrackDetail from "./pages/TrackDetail";
+import CoursePlayer from "./pages/CoursePlayer";
 import CoursesPage from "./pages/Courses";
 import PracticePage from "./pages/Practice";
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/tracks" element={<TracksPage />} />
-          <Route path="/tracks/:trackId" element={<TrackDetail />} />
-          <Route path="/courses" element={<CoursesPage />} />
-          <Route path="/practice" element={<PracticePage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/tracks" element={<TracksPage />} />
+            <Route path="/tracks/:trackId" element={<TrackDetail />} />
+            <Route path="/tracks/:trackId/courses/:courseId" element={<CoursePlayer />} />
+            <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/practice" element={<PracticePage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
