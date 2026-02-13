@@ -1,21 +1,26 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Clock, BookOpen, CheckCircle2 } from "lucide-react";
 
 interface CourseCardProps {
+  id: string;
   title: string;
   description: string;
   duration: string;
   lessons: number;
   progress?: number;
   image?: string;
+  trackId?: string;
 }
 
-const CourseCard = ({ title, description, duration, lessons, progress }: CourseCardProps) => {
+const CourseCard = ({ id, title, description, duration, lessons, progress, trackId }: CourseCardProps) => {
+  const href = trackId ? `/tracks/${trackId}/courses/${id}` : "#";
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      className="group flex flex-col gap-3 rounded-xl border border-border bg-gradient-card p-5 shadow-card transition-all hover:border-primary/30"
-    >
+    <Link to={href}>
+      <motion.div
+        whileHover={{ y: -2 }}
+        className="group flex flex-col gap-3 rounded-xl border border-border bg-gradient-card p-5 shadow-card transition-all hover:border-primary/30 cursor-pointer h-full"
+      >
       <div className="flex items-start justify-between">
         <h4 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
           {title}
@@ -44,7 +49,8 @@ const CourseCard = ({ title, description, duration, lessons, progress }: CourseC
           <span className="mt-1 text-xs text-muted-foreground">{progress}% complete</span>
         </div>
       )}
-    </motion.div>
+      </motion.div>
+    </Link>
   );
 };
 

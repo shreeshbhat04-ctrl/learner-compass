@@ -78,7 +78,7 @@ const TrackDetail = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
             >
-              <CourseCard {...course} />
+              <CourseCard {...course} trackId={track.id} />
             </motion.div>
           ))}
         </div>
