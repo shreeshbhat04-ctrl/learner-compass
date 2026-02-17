@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, Loader2 } from "lucide-react";
+import { Mail, Lock, Loader2, Sparkles } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,9 +15,9 @@ const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
     if (!email || !password) {
       toast.error("Please fill in all fields");
       return;
@@ -26,9 +26,9 @@ const LoginPage = () => {
     setIsLoading(true);
     try {
       await login(email, password);
-      toast.success("Logged in successfully!");
+      toast.success("Logged in successfully");
       navigate("/dashboard");
-    } catch (error) {
+    } catch {
       toast.error("Login failed. Please try again.");
     } finally {
       setIsLoading(false);
@@ -36,69 +36,64 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center pt-24 pb-16">
-      <div className="container max-w-md">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="border border-border/50 bg-gradient-card p-8 shadow-lg">
-            <div className="mb-8 text-center">
-              <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Sign in to your LearnPath account
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-hero pb-16 pt-24">
+      <div className="pointer-events-none absolute inset-0 bg-grid-soft opacity-30" />
+      <div className="pointer-events-none absolute -left-24 top-16 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
+
+      <div className="container relative max-w-md">
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
+          <Card className="premium-outline border-border/70 bg-card/80 p-8 shadow-card backdrop-blur">
+            <div className="mb-7 text-center">
+              <p className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                Melete
               </p>
+              <h1 className="mt-4 text-3xl font-bold text-foreground">Welcome Back</h1>
+              <p className="mt-2 text-sm text-muted-foreground">Sign in and continue your Earn Every Line journey.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="email" className="mb-2 block text-sm font-medium text-foreground">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
                     placeholder="you@example.com"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
+                    onChange={(event) => setEmail(event.target.value)}
+                    className="h-11 rounded-xl border-border/70 bg-background pl-10"
                     disabled={isLoading}
                   />
                 </div>
               </div>
 
-              {/* Password */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
+                <label htmlFor="password" className="mb-2 block text-sm font-medium text-foreground">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
                     placeholder="••••••••"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10"
+                    onChange={(event) => setPassword(event.target.value)}
+                    className="h-11 rounded-xl border-border/70 bg-background pl-10"
                     disabled={isLoading}
                   />
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-11 font-semibold shadow-glow hover:scale-105 transition-transform"
-              >
+              <Button type="submit" disabled={isLoading} className="h-11 w-full rounded-xl font-semibold shadow-glow">
                 {isLoading ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Signing in...
                   </>
                 ) : (
@@ -107,26 +102,24 @@ const LoginPage = () => {
               </Button>
             </form>
 
-            {/* Divider */}
             <div className="my-6 relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border/30"></div>
+                <div className="w-full border-t border-border/40" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-gradient-card px-2 text-muted-foreground">Or</span>
+                <span className="bg-card px-2 text-muted-foreground">or</span>
               </div>
             </div>
 
-            {/* Demo Mode */}
             <Button
               type="button"
               variant="outline"
-              className="w-full"
+              className="h-11 w-full rounded-xl"
               onClick={async () => {
                 setIsLoading(true);
                 try {
-                  await login("demo@learnpath.com", "demo");
-                  toast.success("Logged in as demo user!");
+                  await login("demo@melete.dev", "demo");
+                  toast.success("Logged in as demo user");
                   navigate("/dashboard");
                 } finally {
                   setIsLoading(false);
@@ -134,27 +127,16 @@ const LoginPage = () => {
               }}
               disabled={isLoading}
             >
-              Demo Account
+              Use Demo Account
             </Button>
 
-            {/* Links */}
             <div className="mt-6 text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-primary hover:underline font-medium">
+              Need an account?{" "}
+              <Link to="/signup" className="font-semibold text-primary hover:underline">
                 Sign up
               </Link>
             </div>
           </Card>
-        </motion.div>
-
-        {/* Info Box */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="mt-8 rounded-lg bg-primary/5 border border-primary/10 p-4 text-center text-sm text-muted-foreground"
-        >
-          Demo credentials: Use the demo account button or enter any email/password
         </motion.div>
       </div>
     </div>

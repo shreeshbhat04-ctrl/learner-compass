@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { safeStorage } from "@/lib/safeStorage";
+import { getLearnerDnaSummary } from "@/services/learnerProfileService";
+import {
+  clearStoredLearnerInsight,
+  ensureLearnerInsight,
+} from "@/services/learnerInsightService";
 
 export interface User {
   id: string;
@@ -21,30 +27,54 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const stableUserId = (email: string) =>
+  `user_${email.toLowerCase().trim().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "")}`;
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const warmLearnerInsight = useCallback(async (candidate: User) => {
+    try {
+      const dna = getLearnerDnaSummary(candidate.id, candidate.branch);
+      await ensureLearnerInsight(candidate, dna);
+    } catch (error) {
+      console.warn("Failed to warm learner insight", error);
+    }
+  }, []);
+
   // Initialize auth state from localStorage
   useEffect(() => {
-    const storedUser = localStorage.getItem("learnpath_user");
+    const storedUser = safeStorage.getItem("learnpath_user");
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser) as Partial<User> & { createdAt?: string | Date };
+        if (typeof parsedUser.id === "string" && typeof parsedUser.email === "string") {
+          const hydratedUser: User = {
+            id: parsedUser.id,
+            name: parsedUser.name ?? parsedUser.email.split("@")[0],
+            email: parsedUser.email,
+            branch: parsedUser.branch ?? "cse",
+            avatar: parsedUser.avatar,
+            createdAt: parsedUser.createdAt ? new Date(parsedUser.createdAt) : new Date(),
+          };
+          setUser(hydratedUser);
+          void warmLearnerInsight(hydratedUser);
+        }
       } catch (error) {
         console.error("Failed to parse stored user:", error);
-        localStorage.removeItem("learnpath_user");
+        safeStorage.removeItem("learnpath_user");
       }
     }
     setIsLoading(false);
-  }, []);
+  }, [warmLearnerInsight]);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
       // Mock login - in production, call your API
       const mockUser: User = {
-        id: "user_" + Date.now(),
+        id: stableUserId(email),
         name: email.split("@")[0],
         email,
         branch: "cse", // Default branch
@@ -52,7 +82,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setUser(mockUser);
-      localStorage.setItem("learnpath_user", JSON.stringify(mockUser));
+      safeStorage.setItem("learnpath_user", JSON.stringify(mockUser));
+      void warmLearnerInsight(mockUser);
     } finally {
       setIsLoading(false);
     }
@@ -63,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Mock signup - in production, call your API
       const newUser: User = {
-        id: "user_" + Date.now(),
+        id: stableUserId(email),
         name,
         email,
         branch,
@@ -71,22 +102,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setUser(newUser);
-      localStorage.setItem("learnpath_user", JSON.stringify(newUser));
+      safeStorage.setItem("learnpath_user", JSON.stringify(newUser));
+      void warmLearnerInsight(newUser);
     } finally {
       setIsLoading(false);
     }
   };
 
   const logout = async () => {
+    const userId = user?.id;
     setUser(null);
-    localStorage.removeItem("learnpath_user");
+    safeStorage.removeItem("learnpath_user");
+    if (userId) {
+      clearStoredLearnerInsight(userId);
+    }
   };
 
   const changeBranch = async (branchId: string) => {
     if (user) {
       const updatedUser = { ...user, branch: branchId };
       setUser(updatedUser);
-      localStorage.setItem("learnpath_user", JSON.stringify(updatedUser));
+      safeStorage.setItem("learnpath_user", JSON.stringify(updatedUser));
+      void warmLearnerInsight(updatedUser);
     }
   };
 
