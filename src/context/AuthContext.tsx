@@ -1,106 +1,120 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { auth, db } from "@/lib/firebase";
+import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { updateStreak } from "@/services/progressService";
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  branch: string; // Branch ID: "ece", "cse", "ee", etc.
-  avatar?: string;
-  createdAt: Date;
+type BranchType = "cse" | "ece";
+
+interface UserProfile {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  branch: BranchType;
+  photoURL: string | null;
 }
 
 interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
+  user: UserProfile | null;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string, branch: string) => Promise<void>;
+  signup: (email: string, password: string, name: string, branch: BranchType) => Promise<void>;
   logout: () => Promise<void>;
-  changeBranch: (branchId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Initialize auth state from localStorage
   useEffect(() => {
-    const storedUser = localStorage.getItem("learnpath_user");
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error("Failed to parse stored user:", error);
-        localStorage.removeItem("learnpath_user");
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Fetch user profile from Firestore with error handling
+        let userData = null;
+        try {
+          const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+          userData = userDoc.data();
+        } catch (dbError: any) {
+          console.warn("Firestore read failed (likely due to security rules or billing). Using default values.", dbError.message);
+          // Continue with default values if Firestore read fails
+        }
+
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          branch: userData?.branch || "cse", // Default to CSE if not set
+          photoURL: firebaseUser.photoURL,
+        });
+
+        // Update streak on login
+        try {
+          updateStreak(firebaseUser.uid);
+        } catch (error) {
+          console.warn("Failed to update streak:", error);
+        }
+      } else {
+        setUser(null);
       }
-    }
-    setIsLoading(false);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
     try {
-      // Mock login - in production, call your API
-      const mockUser: User = {
-        id: "user_" + Date.now(),
-        name: email.split("@")[0],
-        email,
-        branch: "cse", // Default branch
-        createdAt: new Date(),
-      };
-      
-      setUser(mockUser);
-      localStorage.setItem("learnpath_user", JSON.stringify(mockUser));
-    } finally {
-      setIsLoading(false);
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error: any) {
+      console.error("Firebase Login Error:", error.code, error.message);
+      throw error;
     }
   };
 
-  const signup = async (name: string, email: string, password: string, branch: string) => {
-    setIsLoading(true);
+  const signup = async (email: string, password: string, name: string, branch: BranchType) => {
     try {
-      // Mock signup - in production, call your API
-      const newUser: User = {
-        id: "user_" + Date.now(),
-        name,
-        email,
-        branch,
-        createdAt: new Date(),
-      };
-      
-      setUser(newUser);
-      localStorage.setItem("learnpath_user", JSON.stringify(newUser));
-    } finally {
-      setIsLoading(false);
+      console.log("Starting signup...");
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      console.log("Auth successful, user created:", user.uid);
+
+      // Update profile with display name
+      await updateProfile(user, { displayName: name });
+      console.log("Profile updated");
+
+      // Create user document in Firestore - Try/Catch to avoid blocking on billing errors
+      try {
+        console.log("Attempting to write to Firestore...");
+        await setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          email: user.email,
+          displayName: name,
+          branch: branch,
+          photoURL: user.photoURL,
+        });
+        console.log("Firestore write successful");
+      } catch (dbError: any) {
+        console.warn("Firestore write failed (likely due to billing). Proceeding with Auth only.", dbError.message);
+        // We do NOT throw here, allowing the signup to 'succeed' from the UI perspective
+        // The user will just use default values until billing is enabled.
+      }
+    } catch (error: any) {
+      console.error("Firebase Signup Error:", error.code, error.message);
+      throw error;
     }
   };
 
   const logout = async () => {
-    setUser(null);
-    localStorage.removeItem("learnpath_user");
+    await signOut(auth);
   };
 
-  const changeBranch = async (branchId: string) => {
-    if (user) {
-      const updatedUser = { ...user, branch: branchId };
-      setUser(updatedUser);
-      localStorage.setItem("learnpath_user", JSON.stringify(updatedUser));
-    }
-  };
-
-  const value: AuthContextType = {
-    user,
-    isLoading,
-    isAuthenticated: !!user,
-    login,
-    signup,
-    logout,
-    changeBranch,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

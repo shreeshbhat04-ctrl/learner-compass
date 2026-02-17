@@ -1,6 +1,6 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Play, CheckCircle2, Clock, BookOpen, MessageSquare, Code2, X } from "lucide-react";
+import { ArrowLeft, Play, CheckCircle2, Clock, BookOpen, MessageSquare, Code2, X, Video, Library, FileText } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getCourseContext } from "../services/courseContextService";
 import { getTrackById } from "../services/trackService";
@@ -9,6 +9,9 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "../context/AuthContext";
 import AITutor from "../components/AITutor";
+import VideoSection from "../components/VideoSection";
+import BooksSection from "../components/BooksSection";
+import ReferenceSection from "../components/ReferenceSection";
 
 const CoursePlayer = () => {
   const { trackId, courseId } = useParams();
@@ -74,17 +77,9 @@ const CoursePlayer = () => {
         >
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Video Player Placeholder */}
+            {/* Video Player - Now uses YouTube integration */}
             <div className="mb-6 rounded-lg overflow-hidden border border-border shadow-lg">
-              <div className="bg-muted aspect-video flex items-center justify-center">
-                <div className="text-center">
-                  <Play className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Video Player</p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {course.duration} • {course.lessons} lessons
-                  </p>
-                </div>
-              </div>
+              <VideoSection topic={course.title} maxResults={1} />
             </div>
 
             {/* Course Details */}
@@ -131,10 +126,21 @@ const CoursePlayer = () => {
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="lessons">Lessons</TabsTrigger>
-                <TabsTrigger value="resources">Resources</TabsTrigger>
+                <TabsTrigger value="videos">
+                  <Video className="h-4 w-4 mr-1" />
+                  Videos
+                </TabsTrigger>
+                <TabsTrigger value="books">
+                  <Library className="h-4 w-4 mr-1" />
+                  Books
+                </TabsTrigger>
+                <TabsTrigger value="references">
+                  <FileText className="h-4 w-4 mr-1" />
+                  References
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6 mt-6">
@@ -193,41 +199,34 @@ const CoursePlayer = () => {
                 )}
               </TabsContent>
 
-              <TabsContent value="resources" className="space-y-3 mt-6">
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="rounded-lg border border-border bg-muted/30 p-4"
-                >
-                  <div className="flex items-center gap-3">
-                    <Code2 className="h-5 w-5 text-primary" />
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground">Code Exercises</h3>
-                      <p className="text-sm text-muted-foreground">Practice with interactive code examples</p>
-                    </div>
-                    <Button size="sm" variant="outline">
-                      Start
-                    </Button>
-                  </div>
-                </motion.div>
+              <TabsContent value="videos" className="mt-6">
+                <div className="mb-4">
+                  <h2 className="text-lg font-semibold text-foreground mb-2">Educational Videos</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Watch educational videos related to {course.title}
+                  </p>
+                </div>
+                <VideoSection topic={course.title} maxResults={9} />
+              </TabsContent>
 
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="rounded-lg border border-border bg-muted/30 p-4"
-                >
-                  <div className="flex items-center gap-3">
-                    <MessageSquare className="h-5 w-5 text-primary" />
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground">AI Tutor</h3>
-                      <p className="text-sm text-muted-foreground">Get help with this course topic</p>
-                    </div>
-                    <Button size="sm" variant="outline">
-                      Ask
-                    </Button>
-                  </div>
-                </motion.div>
+              <TabsContent value="books" className="mt-6">
+                <div className="mb-4">
+                  <h2 className="text-lg font-semibold text-foreground mb-2">Recommended Books</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Find textbooks and reference materials for {course.title}
+                  </p>
+                </div>
+                <BooksSection topic={course.title} subject={track.title.toLowerCase()} limit={9} />
+              </TabsContent>
+
+              <TabsContent value="references" className="mt-6">
+                <div className="mb-4">
+                  <h2 className="text-lg font-semibold text-foreground mb-2">Reference Material</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Learn more about concepts from {course.title}
+                  </p>
+                </div>
+                <ReferenceSection topic={course.title} />
               </TabsContent>
             </Tabs>
           </div>
@@ -264,9 +263,15 @@ const CoursePlayer = () => {
                   <MessageSquare className="h-4 w-4 mr-2" />
                   {tutorOpen ? "Close Tutor" : "Ask Tutor"}
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Code2 className="h-4 w-4 mr-2" />
-                  Code Editor
+                <Button 
+                  variant="default" 
+                  className="w-full justify-start bg-primary hover:bg-primary/90"
+                  asChild
+                >
+                  <Link to="/lab/virtual-lab">
+                    <Code2 className="h-4 w-4 mr-2" />
+                    Code Editor
+                  </Link>
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <BookOpen className="h-4 w-4 mr-2" />

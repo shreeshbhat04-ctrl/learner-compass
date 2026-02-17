@@ -61,7 +61,7 @@ const SignupPage = () => {
 
     setIsLoading(true);
     try {
-      await signup(formData.name, formData.email, formData.password, selectedBranch);
+      await signup(formData.email, formData.password, formData.name, selectedBranch);
       toast.success("Account created successfully!");
       navigate("/dashboard");
     } catch (error) {
@@ -84,21 +84,19 @@ const SignupPage = () => {
               {/* Step Indicator */}
               <div className="flex items-center gap-4 mb-6">
                 <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold transition-colors ${
-                    step >= 1
+                  className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold transition-colors ${step >= 1
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground"
-                  }`}
+                    }`}
                 >
                   {step > 1 ? <Check className="h-5 w-5" /> : "1"}
                 </div>
                 <div className={`flex-1 h-1 rounded ${step > 1 ? "bg-primary" : "bg-muted"}`}></div>
                 <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold transition-colors ${
-                    step >= 2
+                  className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold transition-colors ${step >= 2
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground"
-                  }`}
+                    }`}
                 >
                   2
                 </div>
@@ -219,21 +217,19 @@ const SignupPage = () => {
                     <motion.button
                       key={branch.id}
                       onClick={() => setSelectedBranch(branch.id)}
-                      className={`p-4 rounded-lg border-2 transition-all text-left ${
-                        selectedBranch === branch.id
+                      className={`p-4 rounded-lg border-2 transition-all text-left ${selectedBranch === branch.id
                           ? "border-primary bg-primary/5"
                           : "border-border/50 bg-muted/30 hover:border-primary/50"
-                      }`}
+                        }`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       <div className="flex items-start gap-3">
                         <div
-                          className={`mt-1 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                            selectedBranch === branch.id
+                          className={`mt-1 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${selectedBranch === branch.id
                               ? "border-primary bg-primary"
                               : "border-border"
-                          }`}
+                            }`}
                         >
                           {selectedBranch === branch.id && (
                             <Check className="h-3 w-3 text-primary-foreground" />
