@@ -22,6 +22,8 @@ interface CourseLabIDEProps {
   selectedQuestion: CourseQuestion | null;
 }
 
+type UiLanguage = "en" | "hi" | "ta";
+
 const normalize = (value: string): string => value.toLowerCase().trim();
 
 const inferMonacoLanguage = (runtimeName?: string): string => {
@@ -44,14 +46,106 @@ const inferMonacoLanguage = (runtimeName?: string): string => {
   return "plaintext";
 };
 
-const starterForRuntime = (runtimeName: string | undefined, title: string): string => {
+const UI_TEXT: Record<
+  UiLanguage,
+  {
+    heading: string;
+    subtitle: string;
+    runtimeLabel: string;
+    loadingRuntimes: string;
+    selectRuntime: string;
+    uiLanguageLabel: string;
+    stdinLabel: string;
+    expectedLabel: string;
+    stdinPlaceholder: string;
+    expectedPlaceholder: string;
+    activeProblem: string;
+    selectProblem: string;
+    run: string;
+    running: string;
+    outputTitle: string;
+    noOutput: string;
+    noMetadata: string;
+  }
+> = {
+  en: {
+    heading: "Multi-Language IDE Lab",
+    subtitle: "Choose runtime, write code, execute with stdin, and validate output.",
+    runtimeLabel: "Runtime",
+    loadingRuntimes: "Loading languages...",
+    selectRuntime: "Select runtime",
+    uiLanguageLabel: "Interface",
+    stdinLabel: "Stdin Input",
+    expectedLabel: "Expected Output (optional)",
+    stdinPlaceholder: 'Example: {"nums":[2,7,11,15],"target":9}',
+    expectedPlaceholder: "Example: [0,1]",
+    activeProblem: "Active problem",
+    selectProblem: "Select a question to contextualize starter code",
+    run: "Run",
+    running: "Running",
+    outputTitle: "Execution Result",
+    noOutput: "No output",
+    noMetadata: "No metadata available.",
+  },
+  hi: {
+    heading: "बहुभाषी IDE लैब",
+    subtitle: "रनटाइम चुनें, कोड लिखें, stdin के साथ चलाएं और आउटपुट जांचें।",
+    runtimeLabel: "रनटाइम",
+    loadingRuntimes: "भाषाएं लोड हो रही हैं...",
+    selectRuntime: "रनटाइम चुनें",
+    uiLanguageLabel: "इंटरफेस",
+    stdinLabel: "इनपुट (stdin)",
+    expectedLabel: "अपेक्षित आउटपुट (वैकल्पिक)",
+    stdinPlaceholder: 'उदाहरण: {"nums":[2,7,11,15],"target":9}',
+    expectedPlaceholder: "उदाहरण: [0,1]",
+    activeProblem: "सक्रिय प्रश्न",
+    selectProblem: "स्टार्टर कोड के लिए प्रश्न चुनें",
+    run: "चलाएं",
+    running: "चल रहा है",
+    outputTitle: "निष्पादन परिणाम",
+    noOutput: "कोई आउटपुट नहीं",
+    noMetadata: "कोई मेटाडाटा उपलब्ध नहीं।",
+  },
+  ta: {
+    heading: "பன்மொழி IDE ஆய்வகம்",
+    subtitle: "Runtime தேர்வு செய்து, code எழுதிச் stdin மூலம் இயக்கி output சரிபார்க்கவும்.",
+    runtimeLabel: "Runtime",
+    loadingRuntimes: "மொழிகள் ஏற்றப்படுகின்றன...",
+    selectRuntime: "Runtime தேர்வு செய்யவும்",
+    uiLanguageLabel: "இடைமுக மொழி",
+    stdinLabel: "உள்ளீடு (stdin)",
+    expectedLabel: "எதிர்பார்க்கப்பட்ட output (விருப்பம்)",
+    stdinPlaceholder: 'உதாரணம்: {"nums":[2,7,11,15],"target":9}',
+    expectedPlaceholder: "உதாரணம்: [0,1]",
+    activeProblem: "செயலில் உள்ள கேள்வி",
+    selectProblem: "Starter code உருவாக்க ஒரு கேள்வியைத் தேர்வு செய்யவும்",
+    run: "இயக்கு",
+    running: "இயங்குகிறது",
+    outputTitle: "இயக்க முடிவு",
+    noOutput: "வெளியீடு இல்லை",
+    noMetadata: "மெட்டாடேட்டா இல்லை.",
+  },
+};
+
+const localizedTodo = (language: UiLanguage, title: string): string => {
+  if (language === "hi") return `// TODO: ${title} के लिए समाधान लिखें`;
+  if (language === "ta") return `// TODO: ${title} க்கான தீர்வை எழுதவும்`;
+  return `// TODO: ${title}`;
+};
+
+const starterForRuntime = (
+  runtimeName: string | undefined,
+  title: string,
+  uiLanguage: UiLanguage,
+): string => {
   const normalized = normalize(runtimeName ?? "");
+  const todo = localizedTodo(uiLanguage, title);
 
   if (normalized.includes("python")) {
     return `import sys
 
 def solve(raw_input: str):
-    # TODO: ${title}
+    ${todo.replace("//", "#")}
     return raw_input.strip()
 
 if __name__ == "__main__":
@@ -67,7 +161,7 @@ public class Main {
   public static void main(String[] args) throws Exception {
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     String input = reader.lines().reduce("", (acc, line) -> acc + line + "\\n").trim();
-    // TODO: ${title}
+    ${todo}
     System.out.print(input);
   }
 }`;
@@ -82,7 +176,7 @@ int main() {
   cin.tie(nullptr);
 
   string input((istreambuf_iterator<char>(cin)), istreambuf_iterator<char>());
-  // TODO: ${title}
+  ${todo}
   cout << input;
   return 0;
 }`;
@@ -94,7 +188,7 @@ int main() {
 int main() {
   char buffer[4096];
   if (fgets(buffer, sizeof(buffer), stdin)) {
-    // TODO: ${title}
+    ${todo}
     printf("%s", buffer);
   }
   return 0;
@@ -112,7 +206,7 @@ import (
 
 func main() {
   input, _ := io.ReadAll(os.Stdin)
-  // TODO: ${title}
+  ${todo}
   fmt.Print(string(input))
 }`;
   }
@@ -123,18 +217,24 @@ func main() {
 fn main() {
     let mut input = String::new();
     io::stdin().read_to_string(&mut input).unwrap();
-    // TODO: ${title}
+    ${todo}
     print!("{}", input);
 }`;
   }
 
   if (normalized.includes("sql")) {
-    return `-- TODO: ${title}
+    const sqlTodo =
+      uiLanguage === "hi"
+        ? `-- TODO: ${title} के लिए SQL लिखें`
+        : uiLanguage === "ta"
+          ? `-- TODO: ${title} க்கான SQL எழுதவும்`
+          : `-- TODO: ${title}`;
+    return `${sqlTodo}
 SELECT 1;`;
   }
 
   return `function solve(rawInput) {
-  // TODO: ${title}
+  ${todo}
   return rawInput.trim();
 }
 
@@ -164,10 +264,11 @@ const formatResultOutput = (result: ExecuteCodeResponse["results"][number]): str
   if (result.stderr) return result.stderr;
   if (result.stdout) return result.stdout;
   if (result.message) return result.message;
-  return "No output";
+  return "";
 };
 
 const CourseLabIDE = ({ selectedQuestion }: CourseLabIDEProps) => {
+  const [uiLanguage, setUiLanguage] = useState<UiLanguage>("en");
   const [languages, setLanguages] = useState<ExecutionLanguage[]>([]);
   const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
   const [selectedLanguageId, setSelectedLanguageId] = useState<number | null>(null);
@@ -216,24 +317,26 @@ const CourseLabIDE = ({ selectedQuestion }: CourseLabIDEProps) => {
       selectedQuestion?.languageHints ?? ["javascript", "python"],
     );
     setSelectedLanguageId(preferredId);
-  }, [languages, selectedQuestion?.id]);
+  }, [languages, selectedQuestion?.id, selectedQuestion?.languageHints]);
 
   const selectedLanguage = useMemo(
     () => languages.find((language) => language.id === selectedLanguageId),
     [languages, selectedLanguageId],
   );
   const monacoLanguage = inferMonacoLanguage(selectedLanguage?.name);
+  const t = UI_TEXT[uiLanguage];
 
   useEffect(() => {
     if (!selectedLanguage) return;
     const nextCode = starterForRuntime(
       selectedLanguage.name,
       selectedQuestion?.title ?? "Solve this problem",
+      uiLanguage,
     );
     setCode(nextCode);
     setExecutionResult(null);
     setExecutionError(null);
-  }, [selectedLanguageId, selectedLanguage, selectedQuestion?.title]);
+  }, [selectedLanguageId, selectedLanguage, selectedQuestion?.title, uiLanguage]);
 
   const handleRun = async () => {
     if (!selectedLanguageId) {
@@ -269,13 +372,22 @@ const CourseLabIDE = ({ selectedQuestion }: CourseLabIDEProps) => {
     <Card className="border border-border/50 bg-gradient-card p-5">
       <div className="mb-4 flex items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">Multi-Language IDE Lab</h3>
-          <p className="text-sm text-muted-foreground">
-            Choose runtime, write code, execute with stdin, and validate output.
-          </p>
+          <h3 className="text-lg font-semibold text-foreground">{t.heading}</h3>
+          <p className="text-sm text-muted-foreground">{t.subtitle}</p>
         </div>
 
-        <div className="min-w-[220px]">
+        <div className="grid min-w-[260px] gap-2 sm:grid-cols-2">
+          <Select value={uiLanguage} onValueChange={(value) => setUiLanguage(value as UiLanguage)}>
+            <SelectTrigger>
+              <SelectValue placeholder={t.uiLanguageLabel} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">English</SelectItem>
+              <SelectItem value="hi">हिन्दी</SelectItem>
+              <SelectItem value="ta">தமிழ்</SelectItem>
+            </SelectContent>
+          </Select>
+
           <Select
             value={selectedLanguageId ? String(selectedLanguageId) : undefined}
             onValueChange={(value) => setSelectedLanguageId(Number(value))}
@@ -283,7 +395,7 @@ const CourseLabIDE = ({ selectedQuestion }: CourseLabIDEProps) => {
           >
             <SelectTrigger>
               <SelectValue
-                placeholder={isLoadingLanguages ? "Loading languages..." : "Select runtime"}
+                placeholder={isLoadingLanguages ? t.loadingRuntimes : t.selectRuntime}
               />
             </SelectTrigger>
             <SelectContent>
@@ -321,45 +433,45 @@ const CourseLabIDE = ({ selectedQuestion }: CourseLabIDEProps) => {
 
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Stdin Input
-          </span>
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {t.stdinLabel}
+            </span>
           <textarea
             value={stdin}
             onChange={(event) => setStdin(event.target.value)}
             className="min-h-24 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-            placeholder='Example: {"nums":[2,7,11,15],"target":9}'
+            placeholder={t.stdinPlaceholder}
           />
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Expected Output (optional)
-          </span>
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {t.expectedLabel}
+            </span>
           <textarea
             value={expectedOutput}
             onChange={(event) => setExpectedOutput(event.target.value)}
             className="min-h-24 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-            placeholder="Example: [0,1]"
+            placeholder={t.expectedPlaceholder}
           />
         </label>
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">
-          Active problem: {selectedQuestion?.title ?? "Select a question to contextualize starter code"}
+          {t.activeProblem}: {selectedQuestion?.title ?? t.selectProblem}
         </p>
 
         <Button onClick={() => void handleRun()} disabled={isExecuting || Boolean(runtimeError)}>
           {isExecuting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Running
+              {t.running}
             </>
           ) : (
             <>
               <Play className="mr-2 h-4 w-4" />
-              Run
+              {t.run}
             </>
           )}
         </Button>
@@ -375,14 +487,14 @@ const CourseLabIDE = ({ selectedQuestion }: CourseLabIDEProps) => {
         <div className="mt-4 rounded-lg border border-border bg-background/70 p-3">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
             <Code2 className="h-4 w-4 text-primary" />
-            Execution Result
+            {t.outputTitle}
           </div>
           <p className="text-xs text-muted-foreground">
             Status: {executionResult.results[0].statusDescription} • Passed:{" "}
             {executionResult.passedCount}/{executionResult.total} • Took: {executionResult.tookMs}ms
           </p>
           <pre className="mt-2 max-h-40 overflow-auto rounded-md bg-muted/40 p-2 text-xs text-foreground">
-            {formatResultOutput(executionResult.results[0])}
+            {formatResultOutput(executionResult.results[0]) || t.noOutput}
           </pre>
         </div>
       )}

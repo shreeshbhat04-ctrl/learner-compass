@@ -20,6 +20,7 @@ import RoadmapsPage from "./pages/Roadmaps";
 import MissionPage from "./pages/Mission";
 import ProfilePage from "./pages/Profile";
 import WhatsUpInTechPage from "./pages/WhatsUpInTech";
+import KnowledgeGraphPage from "./pages/KnowledgeGraph";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./components/theme-provider";
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/roadmaps" element={<RoadmapsPage />} />
               <Route path="/mission" element={<MissionPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/knowledge-graph" element={<KnowledgeGraphPage />} />
               <Route path="/settings" element={<ProfilePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

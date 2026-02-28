@@ -18,6 +18,7 @@ import {
   Users,
   Map,
   Newspaper,
+  Network,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,6 +37,7 @@ const navItems = [
 ];
 
 const discoverItems = [
+  { label: "Knowledge Graph", href: "/knowledge-graph", icon: Network },
   { label: "What's Up in Tech", href: "/whats-up-in-tech", icon: Newspaper },
   { label: "Question Hub", href: "/question-hub", icon: Code2 },
   { label: "Hackathons", href: "/hackathons", icon: Trophy },

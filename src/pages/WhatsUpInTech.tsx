@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink, Newspaper, RefreshCw, Sparkles } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -62,7 +62,7 @@ const WhatsUpInTechPage = () => {
     };
   }, [user]);
 
-  const loadFeed = async () => {
+  const loadFeed = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -77,11 +77,11 @@ const WhatsUpInTechPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [requestPayload]);
 
   useEffect(() => {
     void loadFeed();
-  }, [requestPayload]);
+  }, [loadFeed]);
 
   const personalizedArticles = (feed?.articles ?? []).filter((article) => article.relevance === "personalized");
   const generalArticles = (feed?.articles ?? []).filter((article) => article.relevance === "general");

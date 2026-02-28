@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BookOpen, CheckCircle2, Code2, Download, Flame, MessageSquare, RefreshCw, ThumbsUp, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
@@ -285,6 +285,12 @@ const ProfilePage = () => {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <Button variant="outline" asChild className="gap-2">
+                <Link to="/knowledge-graph">
+                  <Code2 className="h-4 w-4" />
+                  Open Graph Explorer
+                </Link>
+              </Button>
               <Button variant="outline" onClick={handleExportWrapUp} className="gap-2">
                 <Download className="h-4 w-4" />
                 Export Wrap-Up PDF
