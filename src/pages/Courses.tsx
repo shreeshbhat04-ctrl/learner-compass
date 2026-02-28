@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { Filter } from "lucide-react";
 import CourseCard from "../components/CourseCard";
 import { useAuth } from "../context/AuthContext";
 import { getTracksByBranch } from "../services/trackService";
 import { branches } from "../data/branches";
 import { Button } from "@/components/ui/button";
-import { Filter } from "lucide-react";
 
 const CoursesPage = () => {
   const { user } = useAuth();
@@ -14,58 +14,39 @@ const CoursesPage = () => {
 
   const filteredTracks = getTracksByBranch(selectedBranch || undefined);
   const allCourses = filteredTracks.flatMap((track) =>
-    track.courses.map((course) => ({ ...course, trackTitle: track.title, trackColor: track.color }))
+    track.courses.map((course) => ({ ...course, trackTitle: track.title, trackColor: track.color })),
   );
-
-  const currentBranch = branches.find((b) => b.id === selectedBranch);
+  const currentBranch = branches.find((branch) => branch.id === selectedBranch);
 
   return (
-    <div className="min-h-screen bg-background pt-24 pb-16">
+    <div className="min-h-screen bg-background pb-16 pt-24">
       <div className="container">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-10"
-        >
-          <h1 className="text-4xl font-bold text-foreground">All Courses</h1>
-          <p className="mt-2 text-lg text-muted-foreground">
-            Browse all {allCourses.length} courses across {filteredTracks.length} learning tracks.
+        <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+          <h1 className="text-4xl font-semibold text-foreground">Courses</h1>
+          <p className="mt-2 text-muted-foreground">
+            Explore {allCourses.length} courses across {filteredTracks.length} tracks.
           </p>
-          {currentBranch && (
-            <p className="mt-3 text-sm text-primary font-medium">
-              Showing courses for {currentBranch.name}
-            </p>
-          )}
-        </motion.div>
+          {currentBranch && <p className="mt-2 text-sm font-medium text-primary">Showing courses for {currentBranch.name}</p>}
+        </motion.section>
 
-        {/* Filter Button */}
         {user && (
-          <div className="mb-8">
-            <Button
-              variant={showBranchFilter ? "default" : "outline"}
-              onClick={() => setShowBranchFilter(!showBranchFilter)}
-              className="flex items-center gap-2"
-            >
+          <section className="mb-8 rounded-xl border border-border bg-card p-4">
+            <Button variant={showBranchFilter ? "default" : "outline"} onClick={() => setShowBranchFilter((value) => !value)} className="h-11 gap-2">
               <Filter className="h-4 w-4" />
               Filter by Branch
             </Button>
 
             {showBranchFilter && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mt-4 rounded-lg border border-border bg-muted/30 p-4"
-              >
-                <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
+              <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mt-4">
+                <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-6">
                   {branches.map((branch) => (
                     <button
                       key={branch.id}
                       onClick={() => setSelectedBranch(selectedBranch === branch.id ? "" : branch.id)}
-                      className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                      className={`rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
                         selectedBranch === branch.id
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-secondary text-foreground hover:bg-secondary/80"
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-background text-foreground hover:border-primary/50"
                       }`}
                     >
                       {branch.code}
@@ -74,33 +55,33 @@ const CoursesPage = () => {
                 </div>
               </motion.div>
             )}
-          </div>
+          </section>
         )}
 
         {filteredTracks.map((track) => (
-          <div key={track.id} className="mb-12">
-            <div className="mb-4 flex items-center gap-3">
-              <div
-                className="h-3 w-3 rounded-full"
-                style={{ backgroundColor: track.color }}
-              />
-              <h2 className="text-xl font-semibold text-foreground">{track.title}</h2>
-              <span className="text-sm text-muted-foreground">({track.courses.length} courses)</span>
+          <section key={track.id} className="mb-12">
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: track.color }} />
+              <h2 className="text-2xl font-semibold text-foreground">{track.title}</h2>
+              <span className="rounded-md bg-secondary px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                {track.courses.length} courses
+              </span>
             </div>
+
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {track.courses.map((course, i) => (
+              {track.courses.map((course, index) => (
                 <motion.div
                   key={course.id}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04 }}
+                  transition={{ delay: index * 0.03 }}
                   viewport={{ once: true }}
                 >
                   <CourseCard {...course} trackId={track.id} />
                 </motion.div>
               ))}
             </div>
-          </div>
+          </section>
         ))}
       </div>
     </div>

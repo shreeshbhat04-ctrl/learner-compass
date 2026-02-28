@@ -1,6 +1,18 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Play, CheckCircle2, Clock, BookOpen, MessageSquare, Code2, X, Video, Library, FileText } from "lucide-react";
+import {
+  ArrowLeft,
+  Play,
+  CheckCircle2,
+  Clock,
+  BookOpen,
+  MessageSquare,
+  Code2,
+  X,
+  ExternalLink,
+  Loader2,
+  PlayCircle,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { getCourseContext } from "../services/courseContextService";
 import { getTrackById } from "../services/trackService";
@@ -9,23 +21,82 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "../context/AuthContext";
 import AITutor from "../components/AITutor";
-import VideoSection from "../components/VideoSection";
-import BooksSection from "../components/BooksSection";
-import ReferenceSection from "../components/ReferenceSection";
+import { getLearnerDnaSummary } from "@/services/learnerProfileService";
+import {
+  fetchPersonalizedVideos,
+  type LearningVideo,
+} from "@/services/learningVideoService";
 
 const CoursePlayer = () => {
   const { trackId, courseId } = useParams();
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [courseProgress, setCourseProgress] = useState(0);
   const [tutorOpen, setTutorOpen] = useState(false);
+  const [recommendedVideos, setRecommendedVideos] = useState<LearningVideo[]>([]);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [isLoadingVideos, setIsLoadingVideos] = useState(false);
+  const [videosError, setVideosError] = useState<string | null>(null);
+  const track = trackId ? getTrackById(trackId) : null;
+  const course = track && courseId ? track.courses.find((candidate) => candidate.id === courseId) : null;
+  const courseContext = trackId && courseId ? getCourseContext(trackId, courseId) : null;
+
+  useEffect(() => {
+    if (!track || !course) {
+      setRecommendedVideos([]);
+      setActiveVideoId(null);
+      setVideosError(null);
+      return;
+    }
+
+    let isCancelled = false;
+
+    const loadRecommendedVideos = async () => {
+      setIsLoadingVideos(true);
+      setVideosError(null);
+
+      try {
+        const dna = user ? getLearnerDnaSummary(user.id, user.branch) : null;
+        const inferredBranch = user?.branch ?? track.branches[0];
+        const response = await fetchPersonalizedVideos({
+          query: `${course.title} ${track.title} tutorial`,
+          branch: inferredBranch,
+          courseTitle: course.title,
+          trackTitle: track.title,
+          level: track.level,
+          focusLanguage: dna?.focusLanguage ?? dna?.strongestLanguage,
+          focusAreas: dna?.topMistakes.map((item) => item.label).slice(0, 3) ?? [],
+          maxResults: 4,
+        });
+
+        if (isCancelled) return;
+        setRecommendedVideos(response.videos);
+        setActiveVideoId(response.videos[0]?.videoId ?? null);
+      } catch (error) {
+        if (isCancelled) return;
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Unable to load personalized videos at the moment.";
+        setVideosError(message);
+      } finally {
+        if (!isCancelled) {
+          setIsLoadingVideos(false);
+        }
+      }
+    };
+
+    void loadRecommendedVideos();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [course, track, user]);
 
   if (!trackId || !courseId) {
     return <div>Invalid course URL</div>;
   }
 
-  const track = getTrackById(trackId);
   if (!track) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center pt-24">
@@ -39,7 +110,6 @@ const CoursePlayer = () => {
     );
   }
 
-  const course = track.courses.find((c) => c.id === courseId);
   if (!course) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center pt-24">
@@ -53,7 +123,10 @@ const CoursePlayer = () => {
     );
   }
 
-  const courseContext = getCourseContext(trackId, courseId);
+  const activeVideo =
+    recommendedVideos.find((video) => video.videoId === activeVideoId) ??
+    recommendedVideos[0] ??
+    null;
 
   return (
     <div className="min-h-screen bg-background pt-24 pb-16">
@@ -77,9 +150,27 @@ const CoursePlayer = () => {
         >
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Video Player - Now uses YouTube integration */}
+            {/* Video Player */}
             <div className="mb-6 rounded-lg overflow-hidden border border-border shadow-lg">
-              <VideoSection topic={course.title} maxResults={1} />
+              {activeVideo ? (
+                <iframe
+                  title={activeVideo.title}
+                  src={activeVideo.embedUrl}
+                  className="aspect-video w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="bg-muted aspect-video flex items-center justify-center">
+                  <div className="text-center">
+                    <Play className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">Video Player</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {course.duration} • {course.lessons} lessons
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Course Details */}
@@ -126,21 +217,10 @@ const CoursePlayer = () => {
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="lessons">Lessons</TabsTrigger>
-                <TabsTrigger value="videos">
-                  <Video className="h-4 w-4 mr-1" />
-                  Videos
-                </TabsTrigger>
-                <TabsTrigger value="books">
-                  <Library className="h-4 w-4 mr-1" />
-                  Books
-                </TabsTrigger>
-                <TabsTrigger value="references">
-                  <FileText className="h-4 w-4 mr-1" />
-                  References
-                </TabsTrigger>
+                <TabsTrigger value="resources">Resources</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6 mt-6">
@@ -199,34 +279,112 @@ const CoursePlayer = () => {
                 )}
               </TabsContent>
 
-              <TabsContent value="videos" className="mt-6">
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold text-foreground mb-2">Educational Videos</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Watch educational videos related to {course.title}
-                  </p>
-                </div>
-                <VideoSection topic={course.title} maxResults={9} />
-              </TabsContent>
+              <TabsContent value="resources" className="space-y-3 mt-6">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="rounded-lg border border-border bg-muted/30 p-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <Code2 className="h-5 w-5 text-primary" />
+                    <div className="flex-1">
+                      <h3 className="font-medium text-foreground">Code Exercises</h3>
+                      <p className="text-sm text-muted-foreground">Practice with interactive code examples</p>
+                    </div>
+                    <Button size="sm" variant="outline">
+                      Start
+                    </Button>
+                  </div>
+                </motion.div>
 
-              <TabsContent value="books" className="mt-6">
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold text-foreground mb-2">Recommended Books</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Find textbooks and reference materials for {course.title}
-                  </p>
-                </div>
-                <BooksSection topic={course.title} subject={track.title.toLowerCase()} limit={9} />
-              </TabsContent>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="rounded-lg border border-border bg-muted/30 p-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                    <div className="flex-1">
+                      <h3 className="font-medium text-foreground">AI Tutor</h3>
+                      <p className="text-sm text-muted-foreground">Get help with this course topic</p>
+                    </div>
+                    <Button size="sm" variant="outline">
+                      Ask
+                    </Button>
+                  </div>
+                </motion.div>
 
-              <TabsContent value="references" className="mt-6">
-                <div className="mb-4">
-                  <h2 className="text-lg font-semibold text-foreground mb-2">Reference Material</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Learn more about concepts from {course.title}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.15 }}
+                  className="rounded-lg border border-border bg-muted/30 p-4"
+                >
+                  <h3 className="font-medium text-foreground">Personalized YouTube Picks</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Curated videos for this course and your current learning profile.
                   </p>
-                </div>
-                <ReferenceSection topic={course.title} />
+
+                  {isLoadingVideos && (
+                    <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading recommendations...
+                    </div>
+                  )}
+
+                  {!isLoadingVideos && videosError && (
+                    <p className="mt-3 rounded-md border border-yellow-500/30 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-700">
+                      {videosError}
+                    </p>
+                  )}
+
+                  {!isLoadingVideos && !videosError && recommendedVideos.length === 0 && (
+                    <p className="mt-3 text-sm text-muted-foreground">
+                      Keep learning and solving problems to unlock better recommendations.
+                    </p>
+                  )}
+
+                  {!isLoadingVideos && recommendedVideos.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {recommendedVideos.map((video) => (
+                        <div
+                          key={video.videoId}
+                          className={`block w-full rounded-md border px-3 py-2 text-left transition-colors ${
+                            activeVideo?.videoId === video.videoId
+                              ? "border-primary/50 bg-primary/5"
+                              : "border-border bg-background/60 hover:border-primary/40"
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setActiveVideoId(video.videoId)}
+                            className="w-full text-left"
+                          >
+                            <p className="line-clamp-1 text-sm font-medium text-foreground">
+                              {video.title}
+                            </p>
+                            <p className="mt-1 inline-flex items-center gap-1 text-xs text-primary">
+                              <PlayCircle className="h-3.5 w-3.5" />
+                              {video.channelTitle}
+                            </p>
+                          </button>
+                          <div className="mt-1">
+                            <a
+                              href={video.watchUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+                            >
+                              Open on YouTube
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
               </TabsContent>
             </Tabs>
           </div>
@@ -263,14 +421,10 @@ const CoursePlayer = () => {
                   <MessageSquare className="h-4 w-4 mr-2" />
                   {tutorOpen ? "Close Tutor" : "Ask Tutor"}
                 </Button>
-                <Button 
-                  variant="default" 
-                  className="w-full justify-start bg-primary hover:bg-primary/90"
-                  asChild
-                >
-                  <Link to="/lab/virtual-lab">
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link to={`/question-hub?trackId=${track.id}&courseId=${course.id}`}>
                     <Code2 className="h-4 w-4 mr-2" />
-                    Code Editor
+                    Open Question Hub + IDE
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
