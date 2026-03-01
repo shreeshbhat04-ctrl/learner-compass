@@ -57,9 +57,85 @@ Melete uses an AMD-aligned architecture blueprint for performance, privacy, and 
 | GAIA Clip Agent | Strong fit for video and multimodal workflows | Planned YouTube search, Q&A, and summary assistance | Planned |
 | LlamaIndex-based RAG pipeline | Grounds responses in approved materials | Planned concept coach on textbook/PDF/repo indexes | Planned |
 | AMD Infinity Guard | Supports private-by-default security posture | Hardware-backed isolation and encryption model for sensitive workloads | In progress |
+| Pensando DPUs | Improves throughput and security at scale | Planned networking/security offload for high-concurrency campus usage | Planned |
 
 Architecture diagram (editable draw.io):
 - [docs/architecture.drawio](docs/architecture.drawio)
+
+Architecture preview (Mermaid fallback):
+
+```mermaid
+flowchart TB
+  U[Students / Mentors / Early Professionals]
+  W[Web App\\nReact + TypeScript + Vite\\nActive]
+  M[Flutter Mobile Client\\nPlanned]
+  API[Fastify API Layer\\nNode.js + TypeScript\\nActive]
+
+  U --> W
+  U --> M
+  W --> API
+  M --> API
+
+  SRCH[/GET /api/search/]
+  NEWS[/POST /api/news/tech/]
+  QREC[/POST /api/questions/recommendations/]
+  KGRAPH[/POST /api/graph/learning/]
+  CODE[/POST /api/code/execute\\nGET /api/code/languages/]
+  AIP[/POST /api/ai/profile-insight/]
+  AIG[/POST /api/ai/gap-analysis/]
+  AIH[/POST /api/ai/hint/]
+  AIV[/POST /api/learning/videos/]
+
+  API --> SRCH
+  API --> NEWS
+  API --> QREC
+  API --> KGRAPH
+  API --> CODE
+  API --> AIP
+  API --> AIG
+  API --> AIH
+  API --> AIV
+
+  OPENAI[OpenAI-Compatible Endpoints]
+  YT[YouTube Data API]
+  EXEC1[Primary Code Exec Provider]
+  EXEC2[Fallback Code Exec Provider]
+  LCACHE[Local In-Memory Cache]
+  REDIS[Redis Cache Optional]
+
+  AIP --> OPENAI
+  AIG --> OPENAI
+  AIH --> OPENAI
+  AIV --> YT
+  CODE --> EXEC1
+  CODE --> EXEC2
+  API --> LCACHE
+  API --> REDIS
+
+  LEM[Lemonade SDK LLM-Aid\\nPlanned]
+  GAIA[GAIA Clip Agent\\nPlanned]
+  RAG[LlamaIndex RAG Pipeline\\nPlanned]
+  DOCS[Textbooks PDFs Repo Content\\nApproved Sources]
+
+  API -. planned .-> LEM
+  AIV -. planned .-> GAIA
+  AIP -. planned .-> RAG
+  AIG -. planned .-> RAG
+  AIH -. planned .-> RAG
+  DOCS -. sources .-> RAG
+
+  subgraph SEC[Security Plane]
+    DPU[Pensando DPU\\nNetwork Security Offload\\nPlanned]
+    INF[AMD Infinity Guard\\nHardware Isolation Encryption\\nIn Progress]
+  end
+
+  W -. secure ingress .-> DPU
+  M -. secure ingress .-> DPU
+  DPU -. protected traffic .-> API
+  INF -. workload protection .-> API
+  INF -. confidential AI posture .-> OPENAI
+  INF -. secure context path .-> RAG
+```
 
 ## Feature Set
 Implemented and active modules in this repository:
