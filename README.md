@@ -1,147 +1,199 @@
-# Melete: Private-by-Default AI Utilities and Training Platform
+# Melete
+AMD Slingshot 2026 - AI in Education and Skilling
 
-## Overview
-Melete is our product for the AMD Slingshot contest. It is a practical AI learning and utility platform focused on three outcomes:
-- Low-code AI utilities that run efficiently across available hardware.
-- Multimodal tools for video-centric and document-centric learning workflows.
-- Local-first and private-by-default deployment patterns for student and campus environments.
+Melete is our contest product for AMD Slingshot 2026. It is a private-by-default learning platform that combines adaptive coaching, coding practice, multimodal support, and low-code AI utility workflows.
 
-This repository contains Melete application components plus implementation references for expanding into a full AMD-aligned education and skilling stack.
+## Table of Contents
+1. [What Is Melete](#what-is-melete)
+2. [Hackathon Context](#hackathon-context)
+3. [AMD Integration](#amd-integration)
+4. [Feature Set](#feature-set)
+5. [Screens and Navigation](#screens-and-navigation)
+6. [Metrics and KPIs](#metrics-and-kpis)
+7. [Tech Stack](#tech-stack)
+8. [Project Structure](#project-structure)
+9. [Planned Add-Ons](#planned-add-ons)
+10. [Environment and Configuration](#environment-and-configuration)
+11. [Setup from Scratch](#setup-from-scratch)
+12. [Running the App](#running-the-app)
+13. [Build and Deployment](#build-and-deployment)
+14. [API Surface](#api-surface)
+15. [Repository Layout](#repository-layout)
+16. [Credits](#credits)
 
-## Metrics-First Definition of Success
-All major decisions in this project are evaluated through measurable outcomes.
+## What Is Melete
+Melete is designed for students, early professionals, and learning communities that need practical AI support without sacrificing privacy.
 
-### Product and Adoption Metrics
-| Metric | What it measures | Target |
+Primary user groups:
+- College and university learners
+- Developer club members and hackathon teams
+- Faculty mentors and training coordinators
+- Early-career professionals upskilling for technical roles
+
+Core product intent:
+- Turn curriculum and learning signals into daily action plans
+- Provide grounded, hint-first AI coaching rather than generic answers
+- Offer multi-language coding practice with execution feedback
+- Keep sensitive content private and controlled by default
+
+## Hackathon Context
+Hackathon: AMD Slingshot 2026  
+Product: Melete
+
+### Challenge Alignment
+| Priority | Challenge Area | How Melete Aligns |
 | --- | --- | --- |
-| Weekly active learners (WAL) | Real student usage consistency | 1,000+ in pilot campus rollout |
-| Time to first useful utility | Onboarding friction for low-code builders | Less than 30 minutes |
-| Utility completion rate | % of users finishing an end-to-end AI utility | More than 70% |
-| 30-day retention | Repeat engagement after first month | More than 40% |
+| Primary | AI in Education and Skilling | Adaptive missions, concept coaching, profile-aware guidance, and practice workflows |
+| Primary | Future of Work and Productivity | Daily execution loops, skill tracking, and output-focused routines |
+| Secondary | Responsible and Private AI | Local-first design posture, explicit data boundaries, and private-by-default principles |
+| Secondary | Consumer AI Experience Quality | Simple UX for high-frequency use, transparent recommendations, and actionable insights |
 
-### Learning and Skilling Metrics
-| Metric | What it measures | Target |
-| --- | --- | --- |
-| Course completion uplift | Completion change vs baseline cohort | +20% |
-| Concept mastery score | Performance on rubric-based assessments | More than 80% average |
-| Practice-to-pass ratio | Attempts required before passing tasks | Improve by 25% |
-| Streak continuity | Daily learning consistency | More than 50% keep 7+ day streaks |
+## AMD Integration
+Melete uses an AMD-aligned architecture blueprint for performance, privacy, and scalability.
 
-### AI Quality and Grounding Metrics
-| Metric | What it measures | Target |
-| --- | --- | --- |
-| Grounded response rate | Answers supported by indexed course sources | More than 95% |
-| Hallucination incidence | Unsupported or incorrect assistant outputs | Less than 3% |
-| Citation coverage | Responses with traceable sources | More than 90% |
-| Feedback relevance score | Faculty/mentor rating for coaching quality | More than 4.2/5 |
+| Component | Why It Fits | Role in Melete | Status |
+| --- | --- | --- | --- |
+| Lemonade SDK (LLM-Aid) | Enables low-code AI utility building with hardware abstraction | Planned routing of workloads across NPU, iGPU, and CPU | Planned |
+| GAIA Clip Agent | Strong fit for video and multimodal workflows | Planned YouTube search, Q&A, and summary assistance | Planned |
+| LlamaIndex-based RAG pipeline | Grounds responses in approved materials | Planned concept coach on textbook/PDF/repo indexes | Planned |
+| AMD Infinity Guard | Supports private-by-default security posture | Hardware-backed isolation and encryption model for sensitive workloads | In progress |
+| Pensando DPUs | Improves throughput and security at scale | Planned networking/security offload for high-concurrency campus usage | Planned |
 
-### Platform Reliability and Performance Metrics
-| Metric | What it measures | Target |
-| --- | --- | --- |
-| API success rate | Request reliability across core endpoints | More than 99.5% |
-| P95 response latency | End-user responsiveness | Less than 800 ms (non-execution APIs) |
-| Code execution completion rate | Stable execution in lab workflows | More than 98% |
-| Uptime | Service availability | 99.9% |
+## Feature Set
+Implemented and active modules in this repository:
 
-### Privacy and Responsible AI Metrics
-| Metric | What it measures | Target |
-| --- | --- | --- |
-| Local-processing coverage | % of sensitive workloads processed locally/private infra | More than 85% |
-| Encryption coverage | Protected data paths (at rest + in transit) | 100% |
-| Policy violation rate | Unsafe/non-compliant response incidence | Less than 1% |
-| Audit pass rate | Internal security and privacy checks | 100% critical controls passed |
+### Learning Platform
+- Personalized dashboard with progress indicators and activity summaries
+- Mission-oriented daily learning tasks
+- Tracks, courses, and branch-aware discovery
+- Ranked search with fuzzy and weighted relevance behavior
 
-## Vision and Essence
-### 1) Low-code utilities, video/multimodal tools, and local privacy
-- Build AI tools that are accessible to students and builders without deep systems programming.
-- Enable multimodal workflows (video, text, and code) for real project delivery.
-- Keep sensitive learner data and institutional content protected by default.
+### Coding and Practice
+- Multi-language code execution flow through backend execution providers
+- Language templates and practice workflows
+- Result/error handling for compilation/runtime outcomes
+- Skill-building loop integrated into learner journey
 
-### 2) AI in education and skilling
-- Support study planners, concept coaches, and rubric-aware assistants.
-- Ground assistant responses in course-approved content to reduce hallucinations.
-- Keep the platform responsive at scale for labs, clubs, and campus-wide usage.
+### AI Coaching
+- Login-time learner profile insight generation
+- Gap analysis for failed attempts
+- Hint-first assistance mode
+- Personalized learning video recommendation pipeline
 
-## AMD AI Solution Blueprint
-The following AMD-oriented components define the target architecture and training emphasis.
+### Knowledge and Discovery
+- Tech news feed generation APIs
+- Learning knowledge-graph generation endpoint
+- Question recommendation endpoint for practice focus
 
-| Component | Why it fits | Capability for this project | Primary KPI | Integration status |
-| --- | --- | --- | --- | --- |
-| Lemonade SDK (LLM-Aid, TurnkeyML) | Enables low/no-code AI utility development through a unified API layer. | Routes workloads to NPU, iGPU, or CPU automatically so builders can focus on product logic instead of hardware orchestration. | Time to first useful utility; utility completion rate | Planned architecture track |
-| GAIA Clip Agent | Direct fit for multimodal creativity and learning workflows. | YouTube search + Q&A workflows for creator research, classroom references, and fast content summarization. | Video-to-summary time; creator task completion rate | Planned architecture track |
-| AMD Infinity Guard | Core for responsible GenAI and privacy-first design. | Hardware-level protections (encryption/isolation) for models, learner data, and institutional content. | Encryption coverage; policy violation rate | Security baseline target |
-| LlamaIndex RAG pipeline (within GAIA workflows) | Foundation for concept coaching and grounded tutoring. | Indexes textbooks, PDFs, and repositories for course-anchored answers with strong relevance controls. | Grounded response rate; hallucination incidence | Planned architecture track |
-| Pensando DPUs | Important for scale, reliability, and secure data movement. | Offloads network and security processing so CPUs remain focused on AI inference and coaching workloads. | P95 latency under load; API success rate | Scale-out architecture track |
+## Screens and Navigation
+High-level route map from `src/App.tsx`:
 
-## Training and Skilling Focus
-### Concept coaches and rubric-aware feedback
-- Build tutors that answer only from approved uploaded material.
-- Provide structured feedback against course rubrics.
-- Improve trust by linking responses to indexed sources.
-
-### Study planners and multimodal support
-- Use learning context (progress, weak areas, goals) to plan daily tasks.
-- Combine text, video, and coding exercises into a single path.
-- Support rapid revision using video Q&A and concise summaries.
-
-### Campus-life and large-user readiness
-- Design for high concurrency and reliable response times.
-- Separate AI inference workloads from network/security heavy tasks.
-- Keep privacy and compliance constraints embedded in system design.
-
-## Project Structure (Current + Planned Add-Ons)
-This project is positioned as a production-ready base with visible expansion tracks for the AMD Slingshot contest.
-
-### Workspace-level structure
 ```text
-amdslingshot/
-  learner-compass/          # Melete product codebase (active app)
-  knowledge_graph_ref/      # Knowledge graph reference experiments
-  implementation_plan.md    # Architecture and rollout planning
-  task.md                   # Detailed execution checklist
+/
+  |- /login
+  |- /signup
+  |- /dashboard
+  |- /tracks
+  |    |- /tracks/:trackId
+  |         |- /tracks/:trackId/courses/:courseId
+  |- /courses
+  |- /practice
+  |- /question-hub
+  |- /hackathons
+  |- /techvise
+  |- /whats-up-in-tech
+  |- /roadmaps
+  |- /mission
+  |- /profile
+  |- /settings
+  |- /knowledge-graph
+  |- *
 ```
 
-### Melete application structure
+## Metrics and KPIs
+Melete is measured as a product, not just a prototype.
+
+### Product and Adoption
+| Metric | Target |
+| --- | --- |
+| Weekly active learners | 1,000+ in pilot rollout |
+| Time to first useful utility | Under 30 minutes |
+| Utility completion rate | Over 70% |
+| 30-day retention | Over 40% |
+
+### Learning Outcomes
+| Metric | Target |
+| --- | --- |
+| Course completion uplift | +20% against baseline |
+| Concept mastery score | 80%+ average |
+| Practice-to-pass ratio | 25% improvement |
+| 7-day streak continuity | 50%+ of active learners |
+
+### AI Quality and Reliability
+| Metric | Target |
+| --- | --- |
+| Grounded response rate | 95%+ |
+| Hallucination incidence | Under 3% |
+| API success rate | 99.5%+ |
+| P95 latency (non-execution APIs) | Under 800 ms |
+
+### Privacy and Responsible AI
+| Metric | Target |
+| --- | --- |
+| Sensitive workload local-processing coverage | 85%+ |
+| Encryption coverage (at rest + in transit) | 100% |
+| Policy violation rate | Under 1% |
+| Critical control audit pass rate | 100% |
+
+## Tech Stack
+| Layer | Technology |
+| --- | --- |
+| Frontend | React 18, TypeScript, Vite, Tailwind, shadcn/ui |
+| Mobile (Future) | Flutter (Android and iOS client planned) |
+| State and Data | React Query, Context APIs |
+| Backend | Fastify, TypeScript, Node.js |
+| Search and Caching | Weighted search logic, local cache, optional Redis (`ioredis`) |
+| AI and Integrations | OpenAI-compatible endpoints, YouTube Data API workflows |
+| Developer Tooling | Vitest, ESLint, Docker Compose, Cloud Run deploy scripts |
+
+## Project Structure
 ```text
 learner-compass/
-  src/                      # Frontend app (React + TypeScript)
-  server/                   # Fastify backend APIs (search, AI, learning flows)
-  backend/                  # Additional backend utilities and services
-  docker/                   # Containerization resources
-  deploy/                   # Deployment scripts/configs
+  src/                      # Frontend app
+  server/                   # Fastify backend APIs
+  backend/                  # Supporting backend utilities
+  deploy/                   # Deployment scripts
+  docker/                   # Container resources
   public/                   # Static assets
+  package.json              # Scripts and dependencies
+  docker-compose.yml        # Local multi-service run
+  Dockerfile.backend        # Backend container image
+  Dockerfile.frontend       # Frontend container image
 ```
 
-### Capability map with status
-| Layer | What it includes | Status |
+## Planned Add-Ons
+These modules are intentional roadmap items for contest and post-contest evolution.
+
+| Module | Purpose | Status |
 | --- | --- | --- |
-| Learning Experience | Missions, dashboard, coding practice, progress flows | Implemented |
-| AI Learning Features | Profile insights, gap analysis, hint-only guidance | Implemented |
-| Retrieval and Grounding | Search stack and RAG-oriented architecture direction | Partially implemented |
-| Privacy and Security | Private-by-default design principles and security controls track | In progress |
-| AMD Hardware-Aware Routing | NPU/iGPU/CPU-aware low-code orchestration path | Planned |
+| Flutter Mobile App | Cross-platform Melete client for Android and iOS with learner dashboards, missions, and AI assistant access | Planned (Future) |
+| Personal LLM Workspace | User-level memory, private context windows, personalized assistant behavior | Planned |
+| Gmail Connector | Turn email threads into tasks, priorities, and revision reminders | Planned |
+| WhatsApp Connector | Extract action items from groups and create daily plan cards | Planned |
+| Calendar Connector | Auto-schedule missions, deadlines, and focus sessions | Planned |
+| Drive and Docs Connector | Ground tutoring and summaries on user-owned docs | Planned |
+| LMS Connector | Sync assignments, submissions, and rubric checkpoints | Planned |
+| Mentor Copilot | Cohort-level risk and progress signals for faculty/mentors | Planned |
+| Research Assistant | Literature summaries, citations, and concept maps | Planned |
 
-### Planned Add-Ons (Contest Vision)
-The following modules are intentionally listed as roadmap add-ons to show product direction. These are not all implemented yet.
+Recommended future module layout:
 
-| Planned module | Purpose | Status |
-| --- | --- | --- |
-| Personal LLM Workspace | Private learner model context, memory, and personal knowledge grounding | Planned |
-| Gmail Connector | Summarize and convert academic emails into study tasks and deadlines | Planned |
-| WhatsApp Connector | Convert class/group messages into actionable reminders and learning cards | Planned |
-| Calendar Connector | Auto-create schedules from assignments, events, and exam timelines | Planned |
-| Drive/Docs Connector | Ground tutoring and quiz generation on learner-owned documents | Planned |
-| LMS Connector (Moodle/Canvas-style) | Sync assignments, grades, and rubric checkpoints | Planned |
-| Research Assistant Agent | Paper summarization, citation extraction, and concept mapping | Planned |
-| Mentor Copilot | Faculty/mentor dashboard for cohort-level skill and risk signals | Planned |
-
-### Recommended future directory layout for add-ons
 ```text
 learner-compass/
   agents/
     personal-llm/
-    gaia-clip/
     concept-coach/
+    gaia-clip/
   connectors/
     gmail/
     whatsapp/
@@ -155,65 +207,128 @@ learner-compass/
   observability/
     metrics/
     tracing/
-    alerts/
 ```
 
-## Current Implemented Capabilities
-Current implemented features are primarily in `learner-compass/`:
-- Full-stack learning experience with React + TypeScript frontend and Fastify backend.
-- Ranked search across tracks/courses with filtering, fuzzy matching, and caching.
-- Multi-language coding practice flow with backend execution API support.
-- Adaptive mission flows, learner profile insights, and hint-first coaching endpoints.
-- Personalized educational video recommendation pipeline and fallback behavior.
+## Environment and Configuration
+Core backend/runtime variables:
+- `PORT`, `HOST`
+- `MAX_SEARCH_RESULTS`, `SEARCH_CACHE_TTL_MS`, `SEARCH_CACHE_MAX_ENTRIES`
+- `REQUEST_TIMEOUT_MS`, `KEEP_ALIVE_TIMEOUT_MS`, `RATE_LIMIT_MAX_PER_MINUTE`
+- `REDIS_URL`, `SEARCH_CACHE_REDIS_KEY_PREFIX`
 
-## Target Architecture
-1. User interacts through learner-facing apps (planning, coaching, coding, video workflows).
-2. AI orchestration layer routes tasks and retrieval calls.
-3. Grounding pipeline indexes institutional/course content for constrained answers.
-4. Compute routing layer selects best available hardware (NPU/iGPU/CPU).
-5. Security and platform layer enforces isolation, encryption, and policy controls.
-6. Scale layer supports high-concurrency campus deployments.
+Code execution variables:
+- `CODE_EXEC_PROVIDER`, `CODE_EXEC_API_URL`, `CODE_EXEC_API_KEY`, `CODE_EXEC_API_HOST`
+- `CODE_EXEC_FALLBACK_PROVIDER`, `CODE_EXEC_FALLBACK_API_URL`
+- `CODE_EXEC_REQUEST_TIMEOUT_MS`, `CODE_EXEC_POLL_INTERVAL_MS`, `CODE_EXEC_POLL_ATTEMPTS`
+- `CODE_EXEC_MAX_TEST_CASES`, `CODE_EXEC_MAX_SOURCE_CHARS`
 
-## Private-by-Default Design Principles
-- Keep retrieval indexes and sensitive content local when policy requires it.
-- Apply least-privilege and encryption controls across model + data paths.
-- Store only required telemetry for quality and reliability.
-- Isolate inference and execution environments for student safety.
+AI and content variables:
+- `OPENAI_API_KEY`, `OPENAI_API_URL`, `OPENAI_MODEL`
+- `OPENAI_REQUEST_TIMEOUT_MS`, `OPENAI_MAX_CONTEXT_CHARS`
+- `YOUTUBE_API_KEY`, `YOUTUBE_API_URL`, `YOUTUBE_DEFAULT_MAX_RESULTS`, `YOUTUBE_REQUEST_TIMEOUT_MS`
+- `VITE_API_BASE_URL` (frontend API override)
 
-## Roadmap Priorities
-1. Integrate low-code orchestration path for hardware-aware execution.
-2. Expand GAIA-style multimodal agent workflows for classroom and creator use.
-3. Add grounded RAG coaching mode for faculty-approved content sets.
-4. Formalize security controls aligned with private-by-default standards.
-5. Prepare scale architecture for multi-tenant campus deployments.
+Reference env files:
+- `.env.backend.example`
+- `.env.frontend.example`
+- `.env.docker.example`
+- `.env.docker`
 
-## Getting Started
-### Learner Compass
+## Setup from Scratch
+Prerequisites:
+- Node.js 18+
+- npm
+- Docker Desktop (optional, for container workflow)
+
+Clone and install:
+
 ```bash
+git clone <your-repo-url>
 cd learner-compass
 npm install
+```
+
+## Running the App
+Start backend:
+
+```bash
 npm run server:dev
+```
+
+Start frontend in a second terminal:
+
+```bash
 npm run dev
 ```
 
-### Knowledge Graph Reference
-Follow local instructions in `knowledge_graph_ref/README.md` for Docker-based setup.
+Default local behavior:
+- Frontend runs on Vite default port
+- Backend runs on `PORT` (default `4000`)
+- Vite proxies API paths to backend
 
-## Validation and Quality
-Recommended validation flow for `learner-compass`:
+## Build and Deployment
+### Local validation
 ```bash
-cd learner-compass
 npm test
 npm run build
 ```
 
-## Who This Is For
-- Student builders creating practical AI utilities.
-- Faculty and mentors building grounded concept-coaching workflows.
-- Campus tech teams deploying privacy-sensitive AI education tools.
-- Developer clubs prototyping multimodal learning assistants.
+### Docker workflow
+```bash
+npm run docker:up
+npm run docker:logs
+npm run docker:down
+```
 
-## License and Contribution
-Add your preferred license file and contribution policy before external distribution.
+### Cloud Run deployment
+```bash
+PROJECT_ID=<your-project-id> REGION=us-central1 npm run deploy:gcp
+```
 
-For feature proposals, use `task.md` and `implementation_plan.md` to map scope, risk, and rollout order.
+### Vercel frontend deployment
+Set:
+- Build command: `npm run build`
+- Output directory: `dist`
+- Environment variable: `VITE_API_BASE_URL=<backend-url>`
+
+## API Surface
+Key backend endpoints:
+
+Health and platform:
+- `GET /healthz`
+- `GET /readyz`
+- `GET /metrics`
+
+Search and discovery:
+- `GET /api/search`
+- `POST /api/news/tech`
+- `POST /api/questions/recommendations`
+- `POST /api/graph/learning`
+
+Code execution:
+- `GET /api/code/languages`
+- `POST /api/code/execute`
+
+AI and learning support:
+- `POST /api/ai/profile-insight`
+- `POST /api/ai/gap-analysis`
+- `POST /api/ai/hint`
+- `POST /api/learning/videos`
+
+## Repository Layout
+Workspace-level layout:
+
+```text
+amdslingshot/
+  learner-compass/          # Melete product codebase
+  knowledge_graph_ref/      # Reference graph workflow
+  implementation_plan.md    # Delivery and architecture plan
+  task.md                   # Task tracker and execution status
+```
+
+## Credits
+- Built for AMD Slingshot 2026
+- Core stack powered by React, Fastify, and TypeScript
+- Uses open ecosystem components for execution, AI workflows, and deployment
+
+For enhancement proposals, track and prioritize in `task.md` and `implementation_plan.md`.
