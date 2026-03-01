@@ -89,11 +89,74 @@ The following AMD-oriented components define the target architecture and trainin
 - Separate AI inference workloads from network/security heavy tasks.
 - Keep privacy and compliance constraints embedded in system design.
 
-## Repository Structure
-- `learner-compass/`: Main learning platform (frontend + backend).
-- `knowledge_graph_ref/`: Knowledge graph reference workflow and graph extraction exploration.
-- `implementation_plan.md`: Implementation roadmap and architecture notes.
-- `task.md`: Detailed task breakdown and execution checklist.
+## Project Structure (Current + Planned Add-Ons)
+This project is positioned as a production-ready base with visible expansion tracks for the AMD Slingshot contest.
+
+### Workspace-level structure
+```text
+amdslingshot/
+  learner-compass/          # Melete product codebase (active app)
+  knowledge_graph_ref/      # Knowledge graph reference experiments
+  implementation_plan.md    # Architecture and rollout planning
+  task.md                   # Detailed execution checklist
+```
+
+### Melete application structure
+```text
+learner-compass/
+  src/                      # Frontend app (React + TypeScript)
+  server/                   # Fastify backend APIs (search, AI, learning flows)
+  backend/                  # Additional backend utilities and services
+  docker/                   # Containerization resources
+  deploy/                   # Deployment scripts/configs
+  public/                   # Static assets
+```
+
+### Capability map with status
+| Layer | What it includes | Status |
+| --- | --- | --- |
+| Learning Experience | Missions, dashboard, coding practice, progress flows | Implemented |
+| AI Learning Features | Profile insights, gap analysis, hint-only guidance | Implemented |
+| Retrieval and Grounding | Search stack and RAG-oriented architecture direction | Partially implemented |
+| Privacy and Security | Private-by-default design principles and security controls track | In progress |
+| AMD Hardware-Aware Routing | NPU/iGPU/CPU-aware low-code orchestration path | Planned |
+
+### Planned Add-Ons (Contest Vision)
+The following modules are intentionally listed as roadmap add-ons to show product direction. These are not all implemented yet.
+
+| Planned module | Purpose | Status |
+| --- | --- | --- |
+| Personal LLM Workspace | Private learner model context, memory, and personal knowledge grounding | Planned |
+| Gmail Connector | Summarize and convert academic emails into study tasks and deadlines | Planned |
+| WhatsApp Connector | Convert class/group messages into actionable reminders and learning cards | Planned |
+| Calendar Connector | Auto-create schedules from assignments, events, and exam timelines | Planned |
+| Drive/Docs Connector | Ground tutoring and quiz generation on learner-owned documents | Planned |
+| LMS Connector (Moodle/Canvas-style) | Sync assignments, grades, and rubric checkpoints | Planned |
+| Research Assistant Agent | Paper summarization, citation extraction, and concept mapping | Planned |
+| Mentor Copilot | Faculty/mentor dashboard for cohort-level skill and risk signals | Planned |
+
+### Recommended future directory layout for add-ons
+```text
+learner-compass/
+  agents/
+    personal-llm/
+    gaia-clip/
+    concept-coach/
+  connectors/
+    gmail/
+    whatsapp/
+    calendar/
+    drive/
+    lms/
+  rag/
+    indexing/
+    retrieval/
+    guardrails/
+  observability/
+    metrics/
+    tracing/
+    alerts/
+```
 
 ## Current Implemented Capabilities
 Current implemented features are primarily in `learner-compass/`:
