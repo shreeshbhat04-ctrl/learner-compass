@@ -1,4 +1,4 @@
-# Melete
+﻿# Melete
 AMD Slingshot 2026 - AI in Education and Skilling
 
 Melete is our contest product for AMD Slingshot 2026. It is a private-by-default learning platform that combines adaptive coaching, coding practice, multimodal support, and low-code AI utility workflows.
@@ -57,7 +57,9 @@ Melete uses an AMD-aligned architecture blueprint for performance, privacy, and 
 | GAIA Clip Agent | Strong fit for video and multimodal workflows | Planned YouTube search, Q&A, and summary assistance | Planned |
 | LlamaIndex-based RAG pipeline | Grounds responses in approved materials | Planned concept coach on textbook/PDF/repo indexes | Planned |
 | AMD Infinity Guard | Supports private-by-default security posture | Hardware-backed isolation and encryption model for sensitive workloads | In progress |
-| Pensando DPUs | Improves throughput and security at scale | Planned networking/security offload for high-concurrency campus usage | Planned |
+
+Architecture diagram (editable draw.io):
+- [docs/architecture.drawio](docs/architecture.drawio)
 
 ## Feature Set
 Implemented and active modules in this repository:
@@ -332,3 +334,4 @@ amdslingshot/
 - Uses open ecosystem components for execution, AI workflows, and deployment
 
 For enhancement proposals, track and prioritize in `task.md` and `implementation_plan.md`.
+
