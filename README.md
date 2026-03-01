@@ -1,12 +1,12 @@
-# AMD Slingshot: Private-by-Default AI Utilities and Training Platform
+# Melete: Private-by-Default AI Utilities and Training Platform
 
 ## Overview
-AMD Slingshot is a practical AI learning and utility platform focused on three outcomes:
+Melete is our product for the AMD Slingshot contest. It is a practical AI learning and utility platform focused on three outcomes:
 - Low-code AI utilities that run efficiently across available hardware.
 - Multimodal tools for video-centric and document-centric learning workflows.
 - Local-first and private-by-default deployment patterns for student and campus environments.
 
-This repository currently contains working application components plus implementation references for expanding into a full AMD-aligned education and skilling stack.
+This repository contains Melete application components plus implementation references for expanding into a full AMD-aligned education and skilling stack.
 
 ## Metrics-First Definition of Success
 All major decisions in this project are evaluated through measurable outcomes.
