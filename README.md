@@ -65,72 +65,76 @@ Architecture diagram (editable draw.io):
 Architecture preview (Mermaid fallback):
 
 ```mermaid
-flowchart TB
-  U[Students / Mentors / Early Professionals]
-  W[Web App\\nReact + TypeScript + Vite\\nActive]
-  M[Flutter Mobile Client\\nPlanned]
-  API[Fastify API Layer\\nNode.js + TypeScript\\nActive]
+%%{init: {"theme": "forest", "flowchart": {"nodeSpacing": 60, "rankSpacing": 100, "curve": "basis"}} }%%
+flowchart LR
+
+  subgraph CLIENTS["Clients"]
+    direction TB
+    U["Students / Mentors / Early Professionals"]
+    W["Web App\nReact + TypeScript + Vite\nActive"]
+    M["Flutter Mobile Client\nPlanned"]
+  end
+
+  subgraph APILAYER["API Layer"]
+    direction TB
+    API["Fastify API Layer\nNode.js + TypeScript\nActive"]
+  end
+
+  subgraph ENDPOINTS["Endpoints"]
+    direction TB
+    SRCH["/GET /api/search"]
+    NEWS["/POST /api/news/tech"]
+    QREC["/POST /api/questions/recommendations"]
+    KGRAPH["/POST /api/graph/learning"]
+    CODE["/POST /api/code/execute\nGET /api/code/languages"]
+    AIP["/POST /api/ai/profile-insight"]
+    AIG["/POST /api/ai/gap-analysis"]
+    AIH["/POST /api/ai/hint"]
+    AIV["/POST /api/learning/videos"]
+  end
+
+  subgraph SERVICES["External Services"]
+    direction TB
+    OPENAI["OpenAI-Compatible Endpoints"]
+    YT["YouTube Data API"]
+    EXEC1["Primary Code Exec Provider"]
+    EXEC2["Fallback Code Exec Provider"]
+    LCACHE["Local In-Memory Cache"]
+    REDIS["Redis Cache Optional"]
+  end
+
+  subgraph AMD["AMD Planned Components"]
+    direction TB
+    LEM["Lemonade SDK LLM-Aid\nPlanned"]
+    GAIA["GAIA Clip Agent\nPlanned"]
+    RAG["LlamaIndex RAG Pipeline\nPlanned"]
+    DOCS["Textbooks PDFs Repo Content\nApproved Sources"]
+  end
+
+  subgraph SEC["Security Plane"]
+    direction TB
+    DPU["Pensando DPU\nNetwork Security Offload\nPlanned"]
+    INF["AMD Infinity Guard\nHardware Isolation Encryption\nIn Progress"]
+  end
 
   U --> W
   U --> M
   W --> API
   M --> API
 
-  SRCH[/GET /api/search/]
-  NEWS[/POST /api/news/tech/]
-  QREC[/POST /api/questions/recommendations/]
-  KGRAPH[/POST /api/graph/learning/]
-  CODE[/POST /api/code/execute\\nGET /api/code/languages/]
-  AIP[/POST /api/ai/profile-insight/]
-  AIG[/POST /api/ai/gap-analysis/]
-  AIH[/POST /api/ai/hint/]
-  AIV[/POST /api/learning/videos/]
+  API --> SRCH & NEWS & QREC & KGRAPH & CODE & AIP & AIG & AIH & AIV
 
-  API --> SRCH
-  API --> NEWS
-  API --> QREC
-  API --> KGRAPH
-  API --> CODE
-  API --> AIP
-  API --> AIG
-  API --> AIH
-  API --> AIV
-
-  OPENAI[OpenAI-Compatible Endpoints]
-  YT[YouTube Data API]
-  EXEC1[Primary Code Exec Provider]
-  EXEC2[Fallback Code Exec Provider]
-  LCACHE[Local In-Memory Cache]
-  REDIS[Redis Cache Optional]
-
-  AIP --> OPENAI
-  AIG --> OPENAI
-  AIH --> OPENAI
+  AIP & AIG & AIH --> OPENAI
   AIV --> YT
-  CODE --> EXEC1
-  CODE --> EXEC2
-  API --> LCACHE
-  API --> REDIS
-
-  LEM[Lemonade SDK LLM-Aid\\nPlanned]
-  GAIA[GAIA Clip Agent\\nPlanned]
-  RAG[LlamaIndex RAG Pipeline\\nPlanned]
-  DOCS[Textbooks PDFs Repo Content\\nApproved Sources]
+  CODE --> EXEC1 & EXEC2
+  API --> LCACHE & REDIS
 
   API -. planned .-> LEM
   AIV -. planned .-> GAIA
-  AIP -. planned .-> RAG
-  AIG -. planned .-> RAG
-  AIH -. planned .-> RAG
+  AIP & AIG & AIH -. planned .-> RAG
   DOCS -. sources .-> RAG
 
-  subgraph SEC[Security Plane]
-    DPU[Pensando DPU\\nNetwork Security Offload\\nPlanned]
-    INF[AMD Infinity Guard\\nHardware Isolation Encryption\\nIn Progress]
-  end
-
-  W -. secure ingress .-> DPU
-  M -. secure ingress .-> DPU
+  W & M -. secure ingress .-> DPU
   DPU -. protected traffic .-> API
   INF -. workload protection .-> API
   INF -. confidential AI posture .-> OPENAI
